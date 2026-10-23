@@ -1,0 +1,12 @@
+package-as: Cues
+enable-nolib-creation: no
+
+# No externals: Libs/ is committed and ships as is, so what was tested is what's in the zip.
+
+manual-changelog:
+  filename: CHANGELOG.md
+  markup-type: markdown
+
+ignore:
+  - README.md
+  - .vscode

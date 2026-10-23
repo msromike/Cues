@@ -1,0 +1,21 @@
+# Lints Cues on every push and pull request, with the same luacheck configuration used
+# locally (.luacheckrc). Cues has no headless tests; the lint is the whole check.
+name: lint
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install luacheck
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q lua-check
+
+      - name: Run luacheck
+        run: luacheck . --no-color

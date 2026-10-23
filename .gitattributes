@@ -1,0 +1,10 @@
+* text=auto eol=lf
+*.ogg binary
+
+# Left out of the release zip (git archive): the repo's own tooling, not the addon.
+# media/ is not on this list: it holds the sounds Cues plays, and ships.
+.github/ export-ignore
+.gitattributes export-ignore
+.gitignore export-ignore
+.luacheckrc export-ignore
+.pkgmeta export-ignore
