@@ -145,7 +145,14 @@ end
 --  Options
 -------------------------------------------------------------------------------
 function Cues:BuildOptions()
-    if self._options then return self._options end
+    if self._options then
+        -- A module whose rows follow something outside Cues refills them here.
+        for _, mod in self:IterateModules() do
+            if mod.RefreshOptions then mod:RefreshOptions() end
+        end
+        self:RefitDropdowns()
+        return self._options
+    end
     local opts = {
         type = "group",
         name = L["Cues"],
@@ -191,8 +198,11 @@ function Cues:BuildOptions()
             opts.args[name] = g
         end
     end
-    opts.args.profiles = AceDBOptions:GetOptionsTable(self.db)
-    opts.args.profiles.order = 100
+    -- Profiles sit on the General tab, as a box under its settings.
+    local profiles = AceDBOptions:GetOptionsTable(self.db)
+    profiles.inline = true
+    profiles.order = 10
+    opts.args.general.args.profiles = profiles
     self._options = opts
     return opts
 end
@@ -221,30 +231,84 @@ end
 --  Shared option builders for modules: a sound row = on/off tick + dropdown
 --  of every LibSharedMedia sound + a play button for the selected sound.
 -------------------------------------------------------------------------------
+-- Widths in AceConfig's unit (170 px) that fit their text, measured each
+-- time the dialog is drawn, so a sound registered later still fits.
+local WIDTH_UNIT = 170
+local DROPDOWN_PAD = 40 -- AceGUI's dropdown: its text sits 36 px narrower than the control
+local DROPDOWN_MAX = 2  -- one very long sound name doesn't push the row apart
+-- The play control: the game's voice-chat speaker (its Classic channel button).
+local PLAY_ICON = "Interface\\Common\\VoiceChat-Speaker"
+local PLAY_ICON_SIZE = 22
+local ICON_PAD = 10     -- room either side so the icon doesn't touch the dropdown
+local ruler
+
+-- texts: list of strings; font: name of a font object; pad: pixels added.
+function Cues:FitWidth(font, texts, pad, most)
+    if not ruler then
+        local holder = CreateFrame("Frame")
+        holder:Hide()
+        ruler = holder:CreateFontString(nil, "ARTWORK")
+    end
+    ruler:SetFontObject(_G[font] or GameFontNormal)
+    local widest = 0
+    for _, text in ipairs(texts) do
+        ruler:SetText(text)
+        widest = math.max(widest, ruler:GetStringWidth() or 0)
+    end
+    local width = (widest + pad) / WIDTH_UNIT
+    return most and math.min(width, most) or width
+end
+
+-- A dropdown as wide as its longest choice. AceConfig takes a width only as a
+-- number, so each dropdown is remembered with a function giving its choices
+-- and re-measured every time the settings are fetched (BuildOptions).
+-- Weak keys: rows a module rebuilds drop out on their own.
+local fitted = setmetatable({}, { __mode = "k" })
+
+function Cues:FitDropdown(option, texts)
+    fitted[option] = texts
+    option.width = self:FitWidth("GameFontHighlightSmall", texts(), DROPDOWN_PAD, DROPDOWN_MAX)
+    return option
+end
+
+function Cues:RefitDropdowns()
+    for option, texts in pairs(fitted) do
+        option.width = self:FitWidth("GameFontHighlightSmall", texts(), DROPDOWN_PAD, DROPDOWN_MAX)
+    end
+end
+
 -- db: function returning the module's profile table; key: field prefix
 -- (e.g. "in" -> inEnabled / inSound); label: row label; order: base order.
-function Cues:SoundRow(db, key, label, order)
+-- id (optional): prefix for the option names in place of key, for a module
+-- with many rows that each keep the same fields in a table of their own.
+function Cues:SoundRow(db, key, label, order, id)
     local enabledKey, soundKey = key .. "Enabled", key .. "Sound"
+    id = id or key
     return {
-        [key .. "Header"] = {
+        [id .. "Header"] = {
             type = "header", name = label, order = order,
         },
-        [enabledKey] = {
+        [id .. "Enabled"] = {
             type = "toggle", name = L["Enabled"], order = order + 1, width = 0.6,
             get = function() return db()[enabledKey] end,
             set = function(_, v) db()[enabledKey] = v end,
         },
-        [soundKey] = {
-            type = "select", name = L["Sound"], order = order + 2, width = 1.8,
+        [id .. "Sound"] = self:FitDropdown({
+            type = "select", name = L["Sound"], order = order + 2,
             style = "dropdown",
             values = function() return ns.SoundValues() end,
             sorting = function() return ns.SoundList() end,
             disabled = function() return not db()[enabledKey] end,
             get = function() return db()[soundKey] end,
             set = function(_, v) db()[soundKey] = v end,
-        },
-        [key .. "Play"] = {
-            type = "execute", name = L["Play"], order = order + 3, width = 0.5,
+        }, ns.SoundList),
+        [id .. "Play"] = {
+            -- A speaker icon, no caption (an image makes AceConfig draw an
+            -- Icon widget; a name would show under it). The tooltip says what
+            -- it does.
+            type = "execute", name = "", order = order + 3,
+            image = PLAY_ICON, imageWidth = PLAY_ICON_SIZE, imageHeight = PLAY_ICON_SIZE,
+            width = (PLAY_ICON_SIZE + ICON_PAD) / WIDTH_UNIT,
             desc = L["Play the selected sound."],
             disabled = function() return not db()[enabledKey] end,
             func = function() self:Play(db()[soundKey]) end,

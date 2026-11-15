@@ -14,9 +14,9 @@ local MODULE = "Combat"
 Cues:RegisterModuleDefaults(MODULE, {
     enabled      = true,
     enterEnabled = true,
-    enterSound   = ns.EUI_PREFIX .. "Warning Siren",
-    leaveEnabled = false,
-    leaveSound   = ns.EUI_PREFIX .. "Kaching",
+    enterSound   = ns.OWN_PREFIX .. "Heart",
+    leaveEnabled = true,
+    leaveSound   = ns.OWN_PREFIX .. "Link",
 })
 
 local function db() return Cues:ModuleDB(MODULE) end

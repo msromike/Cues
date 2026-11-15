@@ -14,8 +14,8 @@ local MODULE = "Range"
 Cues:RegisterModuleDefaults(MODULE, {
     enabled    = true,
     inEnabled  = true,
-    inSound    = ns.EUI_PREFIX .. "Sonar",
-    outEnabled = true,
+    inSound    = ns.OWN_PREFIX .. "IM",
+    outEnabled = false,
     outSound   = ns.EUI_PREFIX .. "Robot Blip",
     combatOnly = false,
     meleeToo   = false,

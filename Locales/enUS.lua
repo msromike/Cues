@@ -37,10 +37,11 @@ L["%d sounds available from LibSharedMedia."] = true
 -- Chat
 L["No LibSharedMedia sound named: "] = true
 L["Range cue disabled: EllesmereUI's range engine is not loaded."] = true
+L["No buff reminders: Forever Enhanced Cooldown Manager's buff list was not found."] = true
+L["No buff reminders: Forever Enhanced Cooldown Manager has no buffs listed for this character."] = true
 
 -- A sound row
 L["Enabled"] = true
-L["Play"] = true
 L["Play the selected sound."] = true
 
 -- Range
@@ -62,3 +63,17 @@ L["Enable combat sound"] = true
 L["Play a cue when you enter combat, and optionally another when combat ends."] = true
 L["Entering combat"] = true
 L["Leaving combat"] = true
+
+-- Buffs
+L["Buff reminders"] = true
+L["Enable buff reminders"] = true
+L["Play a cue while a buff on your Forever Enhanced Cooldown Manager buff list is missing. Silent while you are dead, on a flight path, mounted, resting, away or in a fight."] = true
+L["Forever Enhanced Cooldown Manager's buff list was not found."] = true
+L["Forever Enhanced Cooldown Manager has no buffs listed for this character."] = true
+L["Repeat"] = true
+L["Play the sound once, or again this often until the buff is back."] = true
+L["Once"] = true
+L["30 seconds"] = true
+L["1 minute"] = true
+L["2 minutes"] = true
+L["5 minutes"] = true
