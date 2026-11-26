@@ -49,9 +49,26 @@ function ns.RegisterOwnSounds()
     return n
 end
 
--- Sorted list of every sound name LSM knows about right now.
+-- Every sound name LSM knows about right now: Cues' own ("Cues: ...") first,
+-- then all the others, each part in alphabetical order regardless of case.
 function ns.SoundList()
-    return LSM:List("sound")
+    local own, other = {}, {}
+    for _, name in ipairs(LSM:List("sound")) do
+        if name:sub(1, #ns.OWN_PREFIX) == ns.OWN_PREFIX then
+            own[#own + 1] = name
+        else
+            other[#other + 1] = name
+        end
+    end
+    local function byName(a, b)
+        local la, lb = a:lower(), b:lower()
+        if la ~= lb then return la < lb end
+        return a < b
+    end
+    table.sort(own, byName)
+    table.sort(other, byName)
+    for _, name in ipairs(other) do own[#own + 1] = name end
+    return own
 end
 
 -- name -> name table for AceConfig `values`, rebuilt on each call so sounds

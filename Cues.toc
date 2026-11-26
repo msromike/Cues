@@ -7,7 +7,8 @@
 ## X-License: MIT
 ## X-Website: https://github.com/msromike/Cues
 ## Dependencies: EllesmereUI
-## OptionalDeps: ForeverEnhancedCooldownManager
+# Enhanced Cooldown Manager support switched off (buff reminders need its list):
+# ## OptionalDeps: ForeverEnhancedCooldownManager
 ## SavedVariables: CuesDB
 ## IconTexture: Interface\Icons\INV_Misc_Bell_01
 
@@ -15,9 +16,9 @@ embeds.xml
 Locales\enUS.lua
 Sounds.lua
 Media.lua
-FECMList.lua
+# FECMList.lua
 Core.lua
 Modules\Range.lua
 Modules\Combat.lua
-Modules\Buffs.lua
+# Modules\Buffs.lua
 
